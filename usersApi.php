@@ -1,7 +1,5 @@
 <?php
     function users($action,$data){
-        global $response;
-        global $dbase;
         $email = $data->email;
         $password = $data->password;
         $zip = $data->zip;
@@ -29,7 +27,10 @@
             $userid = $is_auth;
             getUserZip($userid,$zip);
         }
-       
+         if($action === "get_email" && strlen($is_auth)){
+            $userid = intval($is_auth);
+            getUserEmail($userid);
+        }
     }
     // Add a new user to the database, sends the client a JSON message with results.
     function addUser($email, $password, $zip){
@@ -69,6 +70,20 @@
         }else{
             $_SESSION["zip"] = $result[0]["zip"];
             $response["zip"] = $result[0]["zip"];
+        }
+       respond($response);
+    }
+    function getUserEmail($userid){
+         global $response;
+        global $dbase;
+        $sql = "SELECT email FROM " . USERS . " WHERE user_id=$userid";
+        $dbase->query($sql);
+        $result = $dbase->getResults();
+        if($result == 0){
+           $response["error"] = array("message"=>"faild");
+        }else{
+            $_SESSION["email"]= $result[0]["email"];
+            $response["email"] = $result[0]["email"];
         }
        respond($response);
     }
